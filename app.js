@@ -17,7 +17,8 @@ app.set("view engine", "ejs")
 
 let campgroundSchema = new mongoose.Schema({
     name: String,
-    image: String
+    image: String,
+    description: String
 });
 
 let Campground = mongoose.model("Campground", campgroundSchema);
@@ -25,7 +26,8 @@ let Campground = mongoose.model("Campground", campgroundSchema);
 // Campground.create(
 //     {
 //         name: 'Salmon Hill',
-//         image: "https://farm4.staticflickr.com/3751/9580653400_e1509d6696.jpg"
+//         image: "https://farm4.staticflickr.com/3751/9580653400_e1509d6696.jpg",
+//         description: "no bathrooms beautiful"
 //     }, function(error, campground){
 //         if (error){
 //             console.log(err);
@@ -43,6 +45,8 @@ app.get("/", function(req, res){
     res.render("landing");
 })
 
+//INDEX ROUTE - show all campgrounds
+
 app.get("/campgrounds", function(req, res){
     
     //get all campgrounds from DB
@@ -50,7 +54,7 @@ app.get("/campgrounds", function(req, res){
         if (error){
             console.log(error)
         } else {
-            res.render("campgrounds", {campgrounds: allCampgrounds})
+            res.render("index", {campgrounds: allCampgrounds})
         }
     });
 })
@@ -58,19 +62,48 @@ app.get("/campgrounds", function(req, res){
 //get data form and add to campgrounds array
 //redirect back to campgrounds page
 
+//CREATE route add new campground to database
+
 app.post("/campgrounds", function(req, res){
 
     let name = req.body.name;
     let image = req.body.image;
-    let newCampground = {name: name, image: image};
-    //create new campground and save to database
-    res.redirect("/campgrounds");
+    let description = req.body.description;
+    let newCampground = {name: name, image: image, description: description};
+    //create new campground and save to DB
+    Campground.create(newCampground, function(error, newlyCreated){
+        if (error){
+            console.log(error);
+        } else{
+            res.redirect("/campgrounds");    
+        }
+    });
 
 })
+
+// NEW show form to create new campground
 
 app.get("/campgrounds/new", function(req, res){
     res.render("new.ejs");
 })
+
+//SHOW - shows more info about one campground
+
+app.get("/campgrounds/:id", function(req, res){
+    //find the cmapground with provided id;
+    Campground.findById(req.params.id, function(error, foundCampground){
+        if (error){
+            console.log(error);
+        } else{
+            res.render("show", {campground: foundCampground})
+        }
+
+    }) 
+  
+})
+
+
+
 
 app.listen(3000, function(){
     console.log("server has started!")
