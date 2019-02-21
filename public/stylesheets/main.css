@@ -1,0 +1,17 @@
+
+
+
+body {
+    background-color: rgb(9, 126, 87);
+}
+
+
+
+.thumbnail{
+    padding: 0;
+}
+
+.thumbnail .caption-full{
+    padding: 20px;
+}
+

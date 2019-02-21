@@ -2,44 +2,16 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-
-let campgrounds = [
-    { name: 'Salmon Creek', image: "https://pixabay.com/get/e136b80728f31c22d2524518b7444795ea76e5d004b0144495f5c47da6efb3_340.jpg" },
-    { name: 'Granite Hill', image: "https://farm8.staticflickr.com/7252/7626464792_3e68c2a6a5.jpg" },
-    { name: 'Mountain Goat', image: "https://farm4.staticflickr.com/3751/9580653400_e1509d6696.jpg" }
-]
+const Campground = require("./models/campground");
+const Comment = require("./models/comment")
+seedDB = require("./seed");
 
 mongoose.connect('mongodb://localhost:27017/yelp_camp', {useNewUrlParser: true});
 app.use(bodyParser.urlencoded({extended: true}));
-app.set("view engine", "ejs")
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
 
-//SCHEMA SETUP
-
-let campgroundSchema = new mongoose.Schema({
-    name: String,
-    image: String,
-    description: String
-});
-
-let Campground = mongoose.model("Campground", campgroundSchema);
-
-// Campground.create(
-//     {
-//         name: 'Salmon Hill',
-//         image: "https://farm4.staticflickr.com/3751/9580653400_e1509d6696.jpg",
-//         description: "no bathrooms beautiful"
-//     }, function(error, campground){
-//         if (error){
-//             console.log(err);
-//         } else{
-//             console.log('new');
-//             console.log(campground);
-//         }
-//     }
-// )
-
-
-
+seedDB();
 
 app.get("/", function(req, res){
     res.render("landing");
@@ -50,11 +22,13 @@ app.get("/", function(req, res){
 app.get("/campgrounds", function(req, res){
     
     //get all campgrounds from DB
+    //Campground = Jazz bar rename here, in require, and in model..and in Campground.create
+
     Campground.find({}, function(error, allCampgrounds){
         if (error){
             console.log(error)
         } else {
-            res.render("index", {campgrounds: allCampgrounds})
+            res.render("campgrounds/index", {campgrounds: allCampgrounds})
         }
     });
 })
@@ -84,25 +58,64 @@ app.post("/campgrounds", function(req, res){
 // NEW show form to create new campground
 
 app.get("/campgrounds/new", function(req, res){
-    res.render("new.ejs");
+    res.render("campgrounds/new");
 })
 
 //SHOW - shows more info about one campground
 
 app.get("/campgrounds/:id", function(req, res){
     //find the cmapground with provided id;
-    Campground.findById(req.params.id, function(error, foundCampground){
+    //check this out, 8:30 from comment model
+    Campground.findById(req.params.id).populate("comments").exec(function(error, foundCampground){
         if (error){
             console.log(error);
         } else{
-            res.render("show", {campground: foundCampground})
+            res.render("campgrounds/show", {campground: foundCampground})
         }
 
     }) 
   
 })
 
+//===========================
+//COMMENTS ROUTES
+//===========================
 
+app.get("/campgrounds/:id/comments/new", function(req, res){
+    
+    Campground.findById(req.params.id, function(err, campground){
+        if (err){
+            console.log(err)
+        } else{
+
+            res.render("comments/new", {campground: campground});
+        }
+    }) 
+})
+
+app.post("/campgrounds/:id/comments", function(req, res){
+    //lookup campground using id
+    Campground.findById(req.params.id, function(err, campground){
+        if (err){
+            console.log(err)
+            res.redirect("/campgrounds")
+        } else{
+            Comment.create(req.body.comment, function(err, comment){
+                if (err){
+                    console.log(err);
+                } else{
+                    campground.comments.push(comment);
+                    campground.save();
+                    res.redirect("/campgrounds/" + campground._id);
+                }
+            })
+        }
+    })
+
+    //create new comment
+    //connect new comment to campground
+    //redirect to campground show page
+})
 
 
 app.listen(3000, function(){
