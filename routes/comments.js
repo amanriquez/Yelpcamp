@@ -1,45 +1,45 @@
 let express = require("express");
 let router = express.Router();
-let Campground = require("../models/campground");
+let Record = require("../models/record");
 let Comment = require("../models/comment");
 
 
-router.get("/campgrounds/:id/comments/new", isLoggedIn, function (req, res) {
+router.get("/records/:id/comments/new", isLoggedIn, function (req, res) {
 
-    Campground.findById(req.params.id, function (err, campground) {
+    Record.findById(req.params.id, function (err, record) {
         if (err) {
             console.log(err)
         } else {
 
             res.render("comments/new", {
-                campground: campground
+                record: record
             });
         }
     })
 })
 
-router.post("/campgrounds/:id/comments", isLoggedIn, function (req, res) {
-    //lookup campground using id
-    Campground.findById(req.params.id, function (err, campground) {
+router.post("/records/:id/comments", isLoggedIn, function (req, res) {
+    //lookup record using id
+    Record.findById(req.params.id, function (err, record) {
         if (err) {
             console.log(err)
-            res.redirect("/campgrounds")
+            res.redirect("/records")
         } else {
             Comment.create(req.body.comment, function (err, comment) {
                 if (err) {
                     console.log(err);
                 } else {
-                    campground.comments.push(comment);
-                    campground.save();
-                    res.redirect("/campgrounds/" + campground._id);
+                    record.comments.push(comment);
+                    record.save();
+                    res.redirect("/records/" + record._id);
                 }
             })
         }
     })
 
     //create new comment
-    //connect new comment to campground
-    //redirect to campground show page
+    //connect new comment to record
+    //redirect to record show page
 })
 
 function isLoggedIn(req, res, next) {

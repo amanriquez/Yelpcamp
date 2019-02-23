@@ -7,9 +7,9 @@
         <div class="container">
 
             <h1>Welcome to the jazz closet</h1>
-            <p>view our handpicked campgrounds from all over the world</p>
+            <p>view our handpicked records from all over the world</p>
             
-                <a class="btn btn-primary btn-lg" href="/campgrounds/new">Add new Campground</a>
+                <a class="btn btn-primary btn-lg" href="/records/new">Add new Record</a>
             <p>
         </div>
         </p>
@@ -17,15 +17,15 @@
 
     <div class="row" >
         
-        <% campgrounds.forEach( campground => { %>
+        <% records.forEach( record => { %>
             <div class='col-md-3 col-sm-6'>
                 <div class="thumbnail">
-                    <img src="<%= campground.image %>" alt="campground image">    
+                    <img src="<%= record.image %>" alt="record image">    
                     <div class="caption">
-                        <h4> <%= campground.name %> </h4>
+                        <h4> <%= record.name %> </h4>
                     </div>
                     <p>
-                        <a href="/campgrounds/<%= campground._id %>" class="btn btn-primary">More Info</a>
+                        <a href="/records/<%= record._id %>" class="btn btn-primary">More Info</a>
                     </p>
                 </div>
             </div>

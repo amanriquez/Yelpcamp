@@ -32,7 +32,7 @@ router.post("/register", function (req, res) {
             return res.render("register");
         }
         passport.authenticate("local")(req, res, function () {
-            res.redirect("/campgrounds");
+            res.redirect("/records");
         })
     })
 });
@@ -48,14 +48,14 @@ router.get("/login", function (req, res) {
 //handlin login logic
 //app.post('login/', middleware, callback);
 router.post("/login", passport.authenticate("local", {
-    successRedirect: "/campgrounds",
+    successRedirect: "/records",
     failureRedirect: "/login"
 }), function (req, res) {});
 
 //logic route
 router.get("/logout", function (req, res) {
     req.logout();
-    res.redirect("/campgrounds");
+    res.redirect("/records");
 });
 
 
