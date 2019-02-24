@@ -19,6 +19,12 @@
                     <h4 class="pull-right">Django</h4>
                     <h4><a href=""><%=record.name%></a></h1>
                     <p><%= record.description %></p>
+<p> <em>Submitted by
+        <%= record.author.username %></em></p>
+        <a class="btn btn-warning"href="/records/<%=record._id%>/edit">Edit</a>
+        <form id="delete-form" action="/records/<%=record._id%>?_method=DELETE" method="POST">
+        <button class="btn btn-danger">Delete </button>
+    </form>
                 </div>
             </div>
             <div class="well">
@@ -29,7 +35,7 @@
                 <% record.comments.forEach(function(comment){ %>
                 <div class="row">
                     <div class="col-md-12">
-                        <strong> <%= comment.author %></strong>
+                        <strong> <%= comment.author.username %></strong>
                         <span class="pull-right">10 days ago</span>
                         <p>
                             <%= comment.text %>

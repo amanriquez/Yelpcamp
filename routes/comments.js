@@ -17,7 +17,7 @@ router.get("/records/:id/comments/new", isLoggedIn, function (req, res) {
         }
     })
 })
-
+//Create Comments
 router.post("/records/:id/comments", isLoggedIn, function (req, res) {
     //lookup record using id
     Record.findById(req.params.id, function (err, record) {
@@ -29,6 +29,12 @@ router.post("/records/:id/comments", isLoggedIn, function (req, res) {
                 if (err) {
                     console.log(err);
                 } else {
+                    //add username and id to comment
+                    comment.author.id = req.user._id;
+                    comment.author.username = req.user.username;                    
+                    //save comment
+                    comment.save();
+                    console.log(comment);
                     record.comments.push(comment);
                     record.save();
                     res.redirect("/records/" + record._id);
