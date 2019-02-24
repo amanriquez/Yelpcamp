@@ -80,19 +80,18 @@ router.get("/records/:id", function (req, res) {
 
 // EDIT CAMPGROUND ROUTE
 
-router.get("/records/:id/edit", function(req, res){
-    Record.findById(req.params.id, function(err, foundRecord){
-        if(err){
-            res.redirect("/records")
-        }else{
+router.get("/records/:id/edit", checkRecordOwnership, function(req, res){
+
+        Record.findById(req.params.id, function(err, foundRecord){
             res.render("records/edit", {record: foundRecord});
-        }
-    });
-})
+        
+        });
+   
+});
 
 //UPDATE CAMPGROUND ROUTE
 
-router.put("/records/:id", function(req, res){
+router.put("/records/:id", checkRecordOwnership, function(req, res){
     //find and update correct campground
 
     Record.findByIdAndUpdate(req.params.id, req.body.record, function(err, updatedRecord){
@@ -107,7 +106,7 @@ router.put("/records/:id", function(req, res){
 
 
 // DESTROY CAMPGROUND ROUTE
-router.delete("/records/:id", function(req, res){
+router.delete("/records/:id", checkRecordOwnership, function(req, res){
     Record.findByIdAndRemove(req.params.id, function(err){
         if (err){
             res.redirect("/records");
@@ -119,6 +118,29 @@ router.delete("/records/:id", function(req, res){
 
 
 //middleware
+
+function checkRecordOwnership(req, res, next){
+    if (req.isAuthenticated()) {
+        //does user own record
+
+        Record.findById(req.params.id, function (err, foundRecord) {
+            if (err) {
+                res.redirect("back")
+            } else {
+                if (foundRecord.author.id.equals(req.user._id)) {
+                    next();
+                } else {
+                   res.redirect("back")     
+                }
+            }
+        });
+    } else {
+       res.redirect("back");
+    }
+}
+
+
+
 function isLoggedIn(req, res, next) {
 
     if (req.isAuthenticated()) {

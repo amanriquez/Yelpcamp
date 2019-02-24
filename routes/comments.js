@@ -48,6 +48,48 @@ router.post("/records/:id/comments", isLoggedIn, function (req, res) {
     //redirect to record show page
 })
 
+//records/:id/comments/:comment_id/edit
+//comments edit route
+router.get("/records/:id/comments/:comment_id/edit", function(req, res){
+    Comment.findById(req.params.comment_id, function(err, foundComment){
+        if (err){
+            res.redirect("back");
+        } else{
+
+            res.render("comments/edit", {record_id: req.params.id, comment: foundComment});
+        }
+    });
+});
+//comment update
+
+router.put("/records/:id/comments/:comment_id", function(req, res){
+
+    Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment){
+        if (err){
+            res.redirect("back");
+        } else{
+            res.redirect("/records/" + req.params.id);
+        }
+    })
+
+})
+
+//crecord destroy route /records/:id as delete request
+//comment destroy route 
+
+router.delete("/records/:id/comments/:comment_id", function(req, res){
+    //findById and remove
+    Comment.findByIdAndRemove(req.params.comment_id, function(err){
+        if(err){
+            res.redirect("back");
+        } else{
+            res.redirect("/records/" + req.params.id);
+        }
+    })
+})
+
+
+
 function isLoggedIn(req, res, next) {
 
     if (req.isAuthenticated()) {
