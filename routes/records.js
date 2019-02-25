@@ -1,7 +1,8 @@
 
 let express = require("express");
 let router = express.Router();
-const Record = require("../models/record")
+const Record = require("../models/record");
+const middleware = require("../middleware");
 
 
 //INDEX ROUTE - show all campgrounds
@@ -28,7 +29,7 @@ router.get("/records", function (req, res) {
 
 //CREATE route add new campground to database
 
-router.post("/records", isLoggedIn, function (req, res) {
+router.post("/records", middleware.isLoggedIn, function (req, res) {
 
     let name = req.body.name;
     let image = req.body.image;
@@ -56,7 +57,7 @@ router.post("/records", isLoggedIn, function (req, res) {
 
 // NEW show form to create new campground
 
-router.get("/records/new", isLoggedIn, function (req, res) {
+router.get("/records/new", middleware.isLoggedIn, function (req, res) {
     res.render("records/new");
 })
 
@@ -80,7 +81,7 @@ router.get("/records/:id", function (req, res) {
 
 // EDIT CAMPGROUND ROUTE
 
-router.get("/records/:id/edit", checkRecordOwnership, function(req, res){
+router.get("/records/:id/edit", middleware.checkRecordOwnership, function(req, res){
 
         Record.findById(req.params.id, function(err, foundRecord){
             res.render("records/edit", {record: foundRecord});
@@ -91,7 +92,7 @@ router.get("/records/:id/edit", checkRecordOwnership, function(req, res){
 
 //UPDATE CAMPGROUND ROUTE
 
-router.put("/records/:id", checkRecordOwnership, function(req, res){
+router.put("/records/:id", middleware.checkRecordOwnership, function(req, res){
     //find and update correct campground
 
     Record.findByIdAndUpdate(req.params.id, req.body.record, function(err, updatedRecord){
@@ -106,7 +107,7 @@ router.put("/records/:id", checkRecordOwnership, function(req, res){
 
 
 // DESTROY CAMPGROUND ROUTE
-router.delete("/records/:id", checkRecordOwnership, function(req, res){
+router.delete("/records/:id", middleware.checkRecordOwnership, function(req, res){
     Record.findByIdAndRemove(req.params.id, function(err){
         if (err){
             res.redirect("/records");
@@ -115,41 +116,6 @@ router.delete("/records/:id", checkRecordOwnership, function(req, res){
         }
     })
 })
-
-
-//middleware
-
-function checkRecordOwnership(req, res, next){
-    if (req.isAuthenticated()) {
-        //does user own record
-
-        Record.findById(req.params.id, function (err, foundRecord) {
-            if (err) {
-                res.redirect("back")
-            } else {
-                if (foundRecord.author.id.equals(req.user._id)) {
-                    next();
-                } else {
-                   res.redirect("back")     
-                }
-            }
-        });
-    } else {
-       res.redirect("back");
-    }
-}
-
-
-
-function isLoggedIn(req, res, next) {
-
-    if (req.isAuthenticated()) {
-        return next();
-    }
-
-    res.redirect("/login");
-}
-
 
 
 module.exports = router;

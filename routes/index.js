@@ -28,10 +28,11 @@ router.post("/register", function (req, res) {
     })
     User.register(newUser, req.body.password, function (err, user) {
         if (err) {
-            console.log(err);
+            req.flash("error", err.message);    
             return res.render("register");
         }
         passport.authenticate("local")(req, res, function () {
+            req.flash("success", "Welcome to the Jazz Closet, " + user.username);
             res.redirect("/records");
         })
     })
@@ -52,21 +53,22 @@ router.post("/login", passport.authenticate("local", {
     failureRedirect: "/login"
 }), function (req, res) {});
 
-//logic route
+//logout route
 router.get("/logout", function (req, res) {
     req.logout();
+    req.flash("success", "logged out")
     res.redirect("/records");
 });
 
 
-function isLoggedIn(req, res, next) {
+// function isLoggedIn(req, res, next) {
 
-    if (req.isAuthenticated()) {
-        return next();
-    }
+//     if (req.isAuthenticated()) {
+//         return next();
+//     }
 
-    res.redirect("/login");
-}
+//     res.redirect("/login");
+// }
 
 
 module.exports = router;
